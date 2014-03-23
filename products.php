@@ -29,17 +29,34 @@ class ProduktHandler
 	}
 	
 	 // Liefert Produkte anhand deren ID zurueck
-	 //Autor: Florian Dienesch
+	 // Autor: Florian Dienesch
 	 function getProdukte{
-		$entries = json_decode( file_get_contents( "./produkte.txt" ) );
-	
-	       	if (isset($_GET["ID"])){
-	            echo ($entries[$_GET["ID"]]);
-	            
-	            foreach($entries[$_GET["ID"]] as $value){
-                       echo ($value);
-            	    }
-	        }
+		// Verbindung aufbauen, auswählen einer Datenbank
+		$link = mysql_connect("localhost", "root", "letmein")
+		 or die("Verbindung fehlgeschlagen: " . mysql_error());
+		echo "Verbindung zum Datenbankserver erfolgreich";
+		mysql_select_db("webshop") or die("Auswahl der Datenbank fehlgeschlagen");
+		
+		// Abfragen der Produkte
+		$query = "SELECT * FROM products order by id asc";
+		$result = mysql_query($query) or die("Query fehlgeschlagen: " . mysql_error());
+		
+		// Ausgabe der Daten in einer HTML Tabelle
+		echo "<table>\n";
+		while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
+    			echo "\t<tr>\n";
+    			foreach ($line as $col_value) {
+				echo "\t\t<td>$col_value</td>\n";
+    			}
+    			echo "\t</tr>\n";
+		}
+		echo "</table>\n";
+		
+		// Ressourcen wieder freigeben
+		mysql_free_result($result);
+		
+		// Verbindung schliessen
+		mysql_close($link);
 	}
 }
 
